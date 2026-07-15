@@ -156,6 +156,14 @@ export const refresh = async (req, res) => {
       message: 'Access token refreshed successfully',
       data: {
         token: newAccessToken,
+        user: {
+          id: user._id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+          organizationId: user.organizationId,
+          subscriptionTier: user.subscriptionTier,
+        },
       },
     });
   } catch (error) {
