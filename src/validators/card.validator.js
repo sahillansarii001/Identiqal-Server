@@ -17,7 +17,7 @@ const sectionValidationSchema = yup.object({
   type: yup.string().required('Section Type is required'),
   order: yup.number().integer().required('Order is required'),
   isVisible: yup.boolean().default(true),
-  data: yup.object().default({}),
+  data: yup.mixed().default({}),
 });
 
 export const updateCardSchema = yup.object({

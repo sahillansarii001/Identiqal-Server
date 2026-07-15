@@ -57,7 +57,10 @@ class CardService {
     }
 
     if (updateData.title) card.title = updateData.title;
-    if (updateData.sections) card.sections = updateData.sections;
+    if (updateData.sections) {
+      card.sections = updateData.sections;
+      card.markModified('sections');
+    }
     if (updateData.seo) card.seo = { ...card.seo, ...updateData.seo };
 
     await card.save();
