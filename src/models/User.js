@@ -42,6 +42,18 @@ const userSchema = new mongoose.Schema(
       enum: PLAN_ENUM,
       default: PLANS.FREE,
     },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    otp: {
+      type: String,
+      default: null,
+    },
+    otpExpiresAt: {
+      type: Date,
+      default: null,
+    },
   },
   {
     timestamps: true,
