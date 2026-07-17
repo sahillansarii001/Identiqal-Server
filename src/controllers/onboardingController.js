@@ -6,7 +6,7 @@ import mongoose from 'mongoose';
 export const updateOnboarding = async (req, res) => {
   try {
     const { step, data } = req.body;
-    const userId = req.user._id;
+    const userId = req.user.id || req.user._id;
 
     const user = await User.findById(userId);
     if (!user) {
@@ -101,7 +101,7 @@ export const updateOnboarding = async (req, res) => {
 
 export const completeOnboarding = async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.user.id || req.user._id;
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
