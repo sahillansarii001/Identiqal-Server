@@ -5,6 +5,7 @@ import RefreshToken from '../models/RefreshToken.js';
 import { generateAccessToken, generateRefreshToken } from '../utils/generateTokens.js';
 import env from '../config/env.config.js';
 import { sendOtpEmail } from '../services/emailService.js';
+import PendingUser from '../models/PendingUser.js';
 
 export const signup = async (req, res) => {
   try {
@@ -15,17 +16,15 @@ export const signup = async (req, res) => {
 
     let user = await User.findOne({ email: emailLower });
     if (user) {
-      if (user.isVerified) {
-        return res.status(400).json({
-          success: false,
-          message: 'A user with this email address already exists',
-        });
-      }
+      return res.status(400).json({
+        success: false,
+        message: 'A user with this email address already exists',
+      });
     }
 
     if (usernameLower) {
       const existingUser = await User.findOne({ username: usernameLower });
-      if (existingUser && existingUser._id.toString() !== (user ? user._id.toString() : '')) {
+      if (existingUser) {
         return res.status(400).json({
           success: false,
           message: 'This username is already taken',
@@ -41,26 +40,16 @@ export const signup = async (req, res) => {
     const otpHash = await bcrypt.hash(plainOtp, salt);
     const otpExpiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 mins
 
-    if (user && !user.isVerified) {
-      user.passwordHash = passwordHash;
-      user.name = name || user.name;
-      user.username = usernameLower || user.username;
-      user.otp = otpHash;
-      user.otpExpiresAt = otpExpiresAt;
-      await user.save();
-    } else {
-      user = await User.create({
-        email: emailLower,
-        username: usernameLower,
-        passwordHash,
-        name: name || 'User',
-        authProvider: 'local',
-        role: 'member',
-        isVerified: false,
-        otp: otpHash,
-        otpExpiresAt
-      });
-    }
+    await PendingUser.findOneAndDelete({ email: emailLower });
+
+    await PendingUser.create({
+      email: emailLower,
+      username: usernameLower,
+      passwordHash,
+      name: name || 'User',
+      otp: otpHash,
+      otpExpiresAt
+    });
 
     // Send OTP email
     await sendOtpEmail(email, plainOtp);
@@ -225,7 +214,71 @@ export const verifyOtp = async (req, res) => {
   try {
     const { email, otp } = req.body;
 
-    const user = await User.findOne({ email: email.toLowerCase() });
+    const emailLower = email.toLowerCase();
+
+    // First check if user is in PendingUser
+    let pendingUser = await PendingUser.findOne({ email: emailLower });
+    if (pendingUser) {
+      if (pendingUser.otpExpiresAt < new Date()) {
+        return res.status(400).json({ success: false, message: 'OTP expired' });
+      }
+
+      const isMatch = await bcrypt.compare(otp.toString(), pendingUser.otp);
+      if (!isMatch) {
+        return res.status(400).json({ success: false, message: 'Invalid OTP' });
+      }
+
+      // Check username again to ensure it wasn't taken while pending
+      if (pendingUser.username) {
+         const existingUser = await User.findOne({ username: pendingUser.username });
+         if (existingUser) {
+            return res.status(400).json({ success: false, message: 'Username was taken by another user. Please sign up again.' });
+         }
+      }
+
+      const newUser = await User.create({
+        email: pendingUser.email,
+        username: pendingUser.username,
+        passwordHash: pendingUser.passwordHash,
+        name: pendingUser.name,
+        authProvider: 'local',
+        role: 'member',
+        isVerified: true,
+      });
+
+      await PendingUser.deleteOne({ _id: pendingUser._id });
+
+      const accessToken = generateAccessToken(newUser);
+      const refreshToken = await generateRefreshToken(newUser._id);
+
+      res.cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        secure: env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: 'Email verified successfully',
+        data: {
+          token: accessToken,
+          user: {
+            id: newUser._id,
+            email: newUser.email,
+            username: newUser.username,
+            name: newUser.name,
+            role: newUser.role,
+            organizationId: newUser.organizationId,
+            subscriptionTier: newUser.subscriptionTier,
+            onboardingCompleted: newUser.onboardingCompleted,
+          },
+        },
+      });
+    }
+
+    // Fallback for older users stuck in unverified state in User collection
+    const user = await User.findOne({ email: emailLower });
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
