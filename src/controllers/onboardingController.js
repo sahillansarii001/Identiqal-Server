@@ -1,6 +1,7 @@
 import User from '../models/User.js';
 import Card from '../models/Card.js';
 import Theme from '../models/Theme.js';
+import mongoose from 'mongoose';
 
 export const updateOnboarding = async (req, res) => {
   try {
@@ -33,9 +34,12 @@ export const updateOnboarding = async (req, res) => {
         await user.save();
         break;
       case 'theme':
-        // Assuming data.themeId is passed
         if (data.themeId) {
-          card.themeId = data.themeId;
+          if (mongoose.Types.ObjectId.isValid(data.themeId)) {
+            card.themeId = data.themeId;
+          } else {
+            // It's a mock string from frontend (e.g., 'theme_0'), ignore for now
+          }
           await card.save();
         }
         break;
