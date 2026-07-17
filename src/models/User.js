@@ -11,6 +11,12 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       trim: true,
     },
+    username: {
+      type: String,
+      unique: true,
+      sparse: true,
+      trim: true,
+    },
     passwordHash: {
       type: String,
       required: function() {
@@ -41,6 +47,15 @@ const userSchema = new mongoose.Schema(
       type: String,
       enum: PLAN_ENUM,
       default: PLANS.FREE,
+    },
+    goal: {
+      type: String,
+      enum: ['personal', 'creator', 'business'],
+      default: null,
+    },
+    onboardingCompleted: {
+      type: Boolean,
+      default: false,
     },
     isVerified: {
       type: Boolean,

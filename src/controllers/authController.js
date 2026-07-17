@@ -8,14 +8,14 @@ import { sendOtpEmail } from '../services/emailService.js';
 
 export const signup = async (req, res) => {
   try {
-    const { email, password, name } = req.body;
+    const { email, password, name, username } = req.body;
 
-    let user = await User.findOne({ email });
+    let user = await User.findOne({ $or: [{ email }, { username }] });
     if (user) {
       if (user.isVerified) {
         return res.status(400).json({
           success: false,
-          message: 'A user with this email address already exists',
+          message: user.email === email ? 'A user with this email address already exists' : 'This username is already taken',
         });
       }
     }
@@ -30,15 +30,17 @@ export const signup = async (req, res) => {
 
     if (user && !user.isVerified) {
       user.passwordHash = passwordHash;
-      user.name = name;
+      user.name = name || user.name;
+      user.username = username || user.username;
       user.otp = otpHash;
       user.otpExpiresAt = otpExpiresAt;
       await user.save();
     } else {
       user = await User.create({
         email,
+        username,
         passwordHash,
-        name,
+        name: name || 'User',
         authProvider: 'local',
         role: 'member',
         isVerified: false,
@@ -105,10 +107,12 @@ export const login = async (req, res) => {
         user: {
           id: user._id,
           email: user.email,
+          username: user.username,
           name: user.name,
           role: user.role,
           organizationId: user.organizationId,
           subscriptionTier: user.subscriptionTier,
+          onboardingCompleted: user.onboardingCompleted,
         },
       },
     });
@@ -168,10 +172,12 @@ export const refresh = async (req, res) => {
         user: {
           id: user._id,
           email: user.email,
+          username: user.username,
           name: user.name,
           role: user.role,
           organizationId: user.organizationId,
           subscriptionTier: user.subscriptionTier,
+          onboardingCompleted: user.onboardingCompleted,
         },
       },
     });
@@ -247,10 +253,12 @@ export const verifyOtp = async (req, res) => {
         user: {
           id: user._id,
           email: user.email,
+          username: user.username,
           name: user.name,
           role: user.role,
           organizationId: user.organizationId,
           subscriptionTier: user.subscriptionTier,
+          onboardingCompleted: user.onboardingCompleted,
         },
       },
     });
