@@ -10,12 +10,25 @@ export const signup = async (req, res) => {
   try {
     const { email, password, name, username } = req.body;
 
-    let user = await User.findOne({ $or: [{ email }, { username }] });
+    const emailLower = email.toLowerCase();
+    const usernameLower = username ? username.toLowerCase() : undefined;
+
+    let user = await User.findOne({ email: emailLower });
     if (user) {
       if (user.isVerified) {
         return res.status(400).json({
           success: false,
-          message: user.email === email ? 'A user with this email address already exists' : 'This username is already taken',
+          message: 'A user with this email address already exists',
+        });
+      }
+    }
+
+    if (usernameLower) {
+      const existingUser = await User.findOne({ username: usernameLower });
+      if (existingUser && existingUser._id.toString() !== (user ? user._id.toString() : '')) {
+        return res.status(400).json({
+          success: false,
+          message: 'This username is already taken',
         });
       }
     }
@@ -31,14 +44,14 @@ export const signup = async (req, res) => {
     if (user && !user.isVerified) {
       user.passwordHash = passwordHash;
       user.name = name || user.name;
-      user.username = username || user.username;
+      user.username = usernameLower || user.username;
       user.otp = otpHash;
       user.otpExpiresAt = otpExpiresAt;
       await user.save();
     } else {
       user = await User.create({
-        email,
-        username,
+        email: emailLower,
+        username: usernameLower,
         passwordHash,
         name: name || 'User',
         authProvider: 'local',
@@ -212,7 +225,7 @@ export const verifyOtp = async (req, res) => {
   try {
     const { email, otp } = req.body;
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
