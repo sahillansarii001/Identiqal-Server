@@ -4,6 +4,7 @@ import Theme from '../models/Theme.js';
 import mongoose from 'mongoose';
 
 export const updateOnboarding = async (req, res) => {
+  console.log("Reached /update onboarding with body:", req.body);
   try {
     const { step, data } = req.body;
     const userId = req.user.id || req.user._id;
