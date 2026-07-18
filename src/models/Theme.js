@@ -7,6 +7,15 @@ const themeSchema = new mongoose.Schema(
       ref: 'User',
       required: true,
     },
+    name: {
+      type: String,
+      default: 'Untitled Theme',
+    },
+    status: {
+      type: String,
+      enum: ['published', 'draft'],
+      default: 'draft',
+    },
     organizationId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Organization',
@@ -22,6 +31,7 @@ const themeSchema = new mongoose.Schema(
     font: {
       heading: { type: String, default: 'Inter' },
       body: { type: String, default: 'Inter' },
+      family: { type: String, default: 'Inter' },
     },
     layoutStyle: {
       type: String,

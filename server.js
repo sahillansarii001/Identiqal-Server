@@ -13,6 +13,7 @@ import analyticsRoutes from './src/routes/analytics.routes.js';
 import orgRoutes from './src/routes/organizations.routes.js';
 import billingRoutes from './src/routes/billing.routes.js';
 import onboardingRoutes from './src/routes/onboardingRoutes.js';
+import adminRoutes from './src/routes/admin.routes.js';
 
 // Import Controllers (for standalone public endpoints)
 import { getPublicCard } from './src/controllers/cardController.js';
@@ -40,6 +41,7 @@ app.use('/api/themes', themeRoutes);
 app.use('/api/organizations', orgRoutes);
 app.use('/api/billing', billingRoutes);
 app.use('/api/onboarding', onboardingRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Public Card Retrieval endpoint (highest traffic, cached)
 app.get('/api/public/cards/:slug', getPublicCard);
