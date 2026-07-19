@@ -23,6 +23,7 @@ import {
   changeUserPassword,
   createUser,
   seedDemoTemplates,
+  seedDemoThemes,
 } from '../controllers/adminController.js';
 
 const router = express.Router();
@@ -58,5 +59,7 @@ router.post('/card-templates', createCardTemplate);
 router.put('/card-templates/:id', updateCardTemplate);
 router.delete('/card-templates/:id', deleteCardTemplate);
 router.post('/templates/seed', seedDemoTemplates);
+
+router.post('/themes/seed', seedDemoThemes);
 
 export default router;

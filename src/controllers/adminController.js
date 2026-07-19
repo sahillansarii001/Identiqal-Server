@@ -152,7 +152,7 @@ export const getThemes = async (req, res) => {
  */
 export const createTheme = async (req, res) => {
   try {
-    const { name, status, colors, font, layoutStyle, buttonStyle } = req.body;
+    const { name, status, colors, font, layoutStyle, buttonStyle, isPremium } = req.body;
     
     const newTheme = new Theme({
       ownerId: req.user.id,
@@ -162,7 +162,8 @@ export const createTheme = async (req, res) => {
       font: font || undefined,
       layoutStyle: layoutStyle || 'minimal',
       buttonStyle: buttonStyle || 'rounded',
-      isLockedByOrg: false
+      isLockedByOrg: false,
+      isPremium: isPremium || false,
     });
 
     await newTheme.save();
@@ -180,7 +181,7 @@ export const createTheme = async (req, res) => {
  */
 export const updateTheme = async (req, res) => {
   try {
-    const { name, status, colors, font, layoutStyle, buttonStyle, isLockedByOrg } = req.body;
+    const { name, status, colors, font, layoutStyle, buttonStyle, isLockedByOrg, isPremium } = req.body;
     
     const theme = await Theme.findById(req.params.id);
     if (!theme) {
@@ -194,6 +195,7 @@ export const updateTheme = async (req, res) => {
     if (layoutStyle !== undefined) theme.layoutStyle = layoutStyle;
     if (buttonStyle !== undefined) theme.buttonStyle = buttonStyle;
     if (isLockedByOrg !== undefined) theme.isLockedByOrg = isLockedByOrg;
+    if (isPremium !== undefined) theme.isPremium = isPremium;
 
     await theme.save();
     return res.status(200).json({ success: true, data: theme });
@@ -449,12 +451,13 @@ export const getCardTemplates = async (req, res) => {
  */
 export const createCardTemplate = async (req, res) => {
   try {
-    const { name, category, description, badge, status, colors, font, layoutStyle, buttonStyle, sections } = req.body;
+    const { name, category, description, badge, isPremium, status, colors, font, layoutStyle, buttonStyle, sections } = req.body;
     const template = new CardTemplate({
       name: name || 'Untitled Template',
       category: category || 'General',
       description: description || '',
       badge: badge || '',
+      isPremium: isPremium || false,
       status: status || 'draft',
       colors: colors || undefined,
       font: font || undefined,
@@ -482,11 +485,12 @@ export const updateCardTemplate = async (req, res) => {
     if (!template) {
       return res.status(404).json({ success: false, message: 'Template not found' });
     }
-    const { name, category, description, badge, status, colors, font, layoutStyle, buttonStyle, sections } = req.body;
+    const { name, category, description, badge, isPremium, status, colors, font, layoutStyle, buttonStyle, sections } = req.body;
     if (name !== undefined) template.name = name;
     if (category !== undefined) template.category = category;
     if (description !== undefined) template.description = description;
     if (badge !== undefined) template.badge = badge;
+    if (isPremium !== undefined) template.isPremium = isPremium;
     if (status !== undefined) template.status = status;
     if (colors !== undefined) template.colors = { ...template.colors.toObject?.() ?? template.colors, ...colors };
     if (font !== undefined) template.font = { ...template.font.toObject?.() ?? template.font, ...font };
@@ -602,49 +606,82 @@ export const seedDemoTemplates = async (req, res) => {
   try {
     const demoTemplates = [
       {
-        name: 'Gold Luxury',
-        category: 'Corporate',
-        description: 'An elegant, high-contrast dark theme with premium gold accents. Perfect for executives, luxury brands, and high-end services.',
-        badge: 'PREMIUM',
+        name: 'Agate',
+        category: 'Creative',
+        description: 'Vibrant green wave design.',
+        badge: '',
+        isPremium: true,
         status: 'published',
-        colors: { primary: '#1A1A1A', secondary: '#D4AF37', background: '#0F0F0F', text: '#F5F5F5', accent: '#D4AF37' },
+        colors: { primary: '#000000', secondary: '#93FF00', background: '#0F2916', text: '#FFFFFF', accent: '#93FF00' },
+        font: { family: 'Lora', heading: 'Lora', body: 'Inter' },
+        buttonStyle: 'rounded',
+      },
+      {
+        name: 'Air',
+        category: 'Minimal',
+        description: 'Clean, airy, white background.',
+        badge: '',
+        isPremium: false,
+        status: 'published',
+        colors: { primary: '#EAEAEA', secondary: '#FFFFFF', background: '#F5F5F5', text: '#111111', accent: '#FFFFFF' },
+        font: { family: 'Inter', heading: 'Inter', body: 'Inter' },
+        buttonStyle: 'rounded',
+      },
+      {
+        name: 'Astrid',
+        category: 'Developer',
+        description: 'Dark, starry galaxy background.',
+        badge: '',
+        isPremium: true,
+        status: 'published',
+        colors: { primary: '#181518', secondary: '#333333', background: '#0F0F0F', text: '#FFFFFF', accent: '#FFFFFF' },
+        font: { family: 'Outfit', heading: 'Outfit', body: 'Inter' },
+        buttonStyle: 'rounded',
+      },
+      {
+        name: 'Aura',
+        category: 'Creative',
+        description: 'Soft beige, natural vibe.',
+        badge: '',
+        isPremium: true,
+        status: 'published',
+        colors: { primary: '#DCD4CB', secondary: '#DCD4CB', background: '#EAE2D9', text: '#333333', accent: '#DCD4CB' },
         font: { family: 'Playfair Display', heading: 'Playfair Display', body: 'Inter' },
-        layoutStyle: 'corporate',
+        buttonStyle: 'rounded',
+      },
+      {
+        name: 'Bliss',
+        category: 'Photography',
+        description: 'Classic monochrome photography style.',
+        badge: '',
+        isPremium: true,
+        status: 'published',
+        colors: { primary: '#000000', secondary: '#EAEAEA', background: '#D9D9D9', text: '#111111', accent: '#EAEAEA' },
+        font: { family: 'Lora', heading: 'Lora', body: 'Inter' },
+        buttonStyle: 'rounded',
+      },
+      {
+        name: 'Blocks',
+        category: 'Developer',
+        description: 'Vibrant purple and pink retro blocks.',
+        badge: '',
+        isPremium: true,
+        status: 'published',
+        colors: { primary: '#8B3DFF', secondary: '#FF57E9', background: '#8B3DFF', text: '#FFFFFF', accent: '#FF57E9' },
+        font: { family: 'Space Mono', heading: 'Space Mono', body: 'Space Mono' },
+        buttonStyle: 'square',
+      },
+      {
+        name: 'Bloom',
+        category: 'Creative',
+        description: 'Warm gradient sunrise.',
+        badge: '',
+        isPremium: true,
+        status: 'published',
+        colors: { primary: '#C84C55', secondary: '#453580', background: '#9D3F65', text: '#FFFFFF', accent: '#C84C55' },
+        font: { family: 'Inter', heading: 'Inter', body: 'Inter' },
         buttonStyle: 'outline',
       },
-      {
-        name: 'Neon Cyber',
-        category: 'Developer',
-        description: 'A vibrant, futuristic dark mode template featuring neon green and deep purple. Ideal for software engineers and tech startups.',
-        badge: 'TRENDING',
-        status: 'published',
-        colors: { primary: '#6D28D9', secondary: '#10B981', background: '#09090B', text: '#E4E4E7', accent: '#10B981' },
-        font: { family: 'Roboto', heading: 'Roboto', body: 'Roboto' },
-        layoutStyle: 'bold',
-        buttonStyle: 'rounded',
-      },
-      {
-        name: 'Clean Minimal',
-        category: 'Creative',
-        description: 'A beautifully spaced, light and airy template with subtle grays. Perfect for minimalist designers and photographers.',
-        badge: 'POPULAR',
-        status: 'published',
-        colors: { primary: '#333333', secondary: '#666666', background: '#FFFFFF', text: '#111111', accent: '#333333' },
-        font: { family: 'Inter', heading: 'Inter', body: 'Inter' },
-        layoutStyle: 'minimal',
-        buttonStyle: 'rounded',
-      },
-      {
-        name: 'Ocean Blue',
-        category: 'Healthcare',
-        description: 'A trustworthy and calming blue-toned template designed for medical professionals, clinics, and consultants.',
-        badge: 'NEW',
-        status: 'published',
-        colors: { primary: '#0284C7', secondary: '#38BDF8', background: '#F0F9FF', text: '#0C4A6E', accent: '#0284C7' },
-        font: { family: 'Montserrat', heading: 'Montserrat', body: 'Inter' },
-        layoutStyle: 'corporate',
-        buttonStyle: 'square',
-      }
     ];
 
     // Optional: clear existing templates if desired, but we will just insert new ones here.
@@ -653,6 +690,94 @@ export const seedDemoTemplates = async (req, res) => {
     return res.status(201).json({ success: true, data: inserted, message: 'Demo templates seeded successfully' });
   } catch (error) {
     console.error('Error in seedDemoTemplates:', error);
+    return res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+/**
+ * @desc    Seed demo themes for demonstration
+ * @route   POST /api/admin/themes/seed
+ * @access  Private/Admin
+ */
+export const seedDemoThemes = async (req, res) => {
+  try {
+    const demoThemes = [
+      {
+        ownerId: req.user.id,
+        name: 'Agate',
+        isPremium: true,
+        status: 'published',
+        colors: { primary: '#000000', secondary: '#93FF00', background: '#0F2916', text: '#FFFFFF', accent: '#93FF00' },
+        font: { family: 'Lora', heading: 'Lora', body: 'Inter' },
+        layoutStyle: 'creative',
+        buttonStyle: 'rounded',
+      },
+      {
+        ownerId: req.user.id,
+        name: 'Air',
+        isPremium: false,
+        status: 'published',
+        colors: { primary: '#EAEAEA', secondary: '#FFFFFF', background: '#F5F5F5', text: '#111111', accent: '#FFFFFF' },
+        font: { family: 'Inter', heading: 'Inter', body: 'Inter' },
+        layoutStyle: 'minimal',
+        buttonStyle: 'rounded',
+      },
+      {
+        ownerId: req.user.id,
+        name: 'Astrid',
+        isPremium: true,
+        status: 'published',
+        colors: { primary: '#181518', secondary: '#333333', background: '#0F0F0F', text: '#FFFFFF', accent: '#FFFFFF' },
+        font: { family: 'Outfit', heading: 'Outfit', body: 'Inter' },
+        layoutStyle: 'bold',
+        buttonStyle: 'rounded',
+      },
+      {
+        ownerId: req.user.id,
+        name: 'Aura',
+        isPremium: true,
+        status: 'published',
+        colors: { primary: '#DCD4CB', secondary: '#DCD4CB', background: '#EAE2D9', text: '#333333', accent: '#DCD4CB' },
+        font: { family: 'Playfair Display', heading: 'Playfair Display', body: 'Inter' },
+        layoutStyle: 'creative',
+        buttonStyle: 'rounded',
+      },
+      {
+        ownerId: req.user.id,
+        name: 'Bliss',
+        isPremium: true,
+        status: 'published',
+        colors: { primary: '#000000', secondary: '#EAEAEA', background: '#D9D9D9', text: '#111111', accent: '#EAEAEA' },
+        font: { family: 'Lora', heading: 'Lora', body: 'Inter' },
+        layoutStyle: 'minimal',
+        buttonStyle: 'rounded',
+      },
+      {
+        ownerId: req.user.id,
+        name: 'Blocks',
+        isPremium: true,
+        status: 'published',
+        colors: { primary: '#8B3DFF', secondary: '#FF57E9', background: '#8B3DFF', text: '#FFFFFF', accent: '#FF57E9' },
+        font: { family: 'Space Mono', heading: 'Space Mono', body: 'Space Mono' },
+        layoutStyle: 'bold',
+        buttonStyle: 'square',
+      },
+      {
+        ownerId: req.user.id,
+        name: 'Bloom',
+        isPremium: true,
+        status: 'published',
+        colors: { primary: '#C84C55', secondary: '#453580', background: '#9D3F65', text: '#FFFFFF', accent: '#C84C55' },
+        font: { family: 'Inter', heading: 'Inter', body: 'Inter' },
+        layoutStyle: 'creative',
+        buttonStyle: 'outline',
+      },
+    ];
+
+    const inserted = await Theme.insertMany(demoThemes);
+    return res.status(201).json({ success: true, data: inserted, message: 'Demo themes seeded successfully' });
+  } catch (error) {
+    console.error('Error in seedDemoThemes:', error);
     return res.status(500).json({ success: false, message: 'Server Error' });
   }
 };
