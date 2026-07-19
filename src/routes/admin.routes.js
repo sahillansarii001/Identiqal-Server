@@ -22,6 +22,7 @@ import {
   deleteCardTemplate,
   changeUserPassword,
   createUser,
+  seedDemoTemplates,
 } from '../controllers/adminController.js';
 
 const router = express.Router();
@@ -56,5 +57,6 @@ router.get('/card-templates', getCardTemplates);
 router.post('/card-templates', createCardTemplate);
 router.put('/card-templates/:id', updateCardTemplate);
 router.delete('/card-templates/:id', deleteCardTemplate);
+router.post('/templates/seed', seedDemoTemplates);
 
 export default router;

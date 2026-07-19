@@ -592,3 +592,67 @@ export const createUser = async (req, res) => {
     return res.status(500).json({ success: false, message: 'Server Error' });
   }
 };
+
+/**
+ * @desc    Seed demo card templates for demonstration
+ * @route   POST /api/admin/templates/seed
+ * @access  Private/Admin
+ */
+export const seedDemoTemplates = async (req, res) => {
+  try {
+    const demoTemplates = [
+      {
+        name: 'Gold Luxury',
+        category: 'Corporate',
+        description: 'An elegant, high-contrast dark theme with premium gold accents. Perfect for executives, luxury brands, and high-end services.',
+        badge: 'PREMIUM',
+        status: 'published',
+        colors: { primary: '#1A1A1A', secondary: '#D4AF37', background: '#0F0F0F', text: '#F5F5F5', accent: '#D4AF37' },
+        font: { family: 'Playfair Display', heading: 'Playfair Display', body: 'Inter' },
+        layoutStyle: 'corporate',
+        buttonStyle: 'outline',
+      },
+      {
+        name: 'Neon Cyber',
+        category: 'Developer',
+        description: 'A vibrant, futuristic dark mode template featuring neon green and deep purple. Ideal for software engineers and tech startups.',
+        badge: 'TRENDING',
+        status: 'published',
+        colors: { primary: '#6D28D9', secondary: '#10B981', background: '#09090B', text: '#E4E4E7', accent: '#10B981' },
+        font: { family: 'Roboto', heading: 'Roboto', body: 'Roboto' },
+        layoutStyle: 'bold',
+        buttonStyle: 'rounded',
+      },
+      {
+        name: 'Clean Minimal',
+        category: 'Creative',
+        description: 'A beautifully spaced, light and airy template with subtle grays. Perfect for minimalist designers and photographers.',
+        badge: 'POPULAR',
+        status: 'published',
+        colors: { primary: '#333333', secondary: '#666666', background: '#FFFFFF', text: '#111111', accent: '#333333' },
+        font: { family: 'Inter', heading: 'Inter', body: 'Inter' },
+        layoutStyle: 'minimal',
+        buttonStyle: 'rounded',
+      },
+      {
+        name: 'Ocean Blue',
+        category: 'Healthcare',
+        description: 'A trustworthy and calming blue-toned template designed for medical professionals, clinics, and consultants.',
+        badge: 'NEW',
+        status: 'published',
+        colors: { primary: '#0284C7', secondary: '#38BDF8', background: '#F0F9FF', text: '#0C4A6E', accent: '#0284C7' },
+        font: { family: 'Montserrat', heading: 'Montserrat', body: 'Inter' },
+        layoutStyle: 'corporate',
+        buttonStyle: 'square',
+      }
+    ];
+
+    // Optional: clear existing templates if desired, but we will just insert new ones here.
+    const inserted = await CardTemplate.insertMany(demoTemplates);
+
+    return res.status(201).json({ success: true, data: inserted, message: 'Demo templates seeded successfully' });
+  } catch (error) {
+    console.error('Error in seedDemoTemplates:', error);
+    return res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
