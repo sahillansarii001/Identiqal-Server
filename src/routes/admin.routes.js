@@ -20,6 +20,8 @@ import {
   createCardTemplate,
   updateCardTemplate,
   deleteCardTemplate,
+  changeUserPassword,
+  createUser,
 } from '../controllers/adminController.js';
 
 const router = express.Router();
@@ -33,7 +35,9 @@ router.use(authorize('admin', 'owner'));
 
 router.get('/stats', getDashboardStats);
 router.get('/users', getUsers);
+router.post('/users', createUser);
 router.put('/users/:id', updateUserStatus);
+router.put('/users/:id/password', changeUserPassword);
 router.delete('/users/:id', deleteUser);
 router.get('/organizations', getOrganizations);
 router.get('/themes', getThemes);

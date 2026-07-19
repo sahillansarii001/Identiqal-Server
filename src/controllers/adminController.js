@@ -1,3 +1,4 @@
+import bcrypt from 'bcrypt';
 import User from '../models/User.js';
 import Organization from '../models/Organization.js';
 import Card from '../models/Card.js';
@@ -227,13 +228,15 @@ export const deleteTheme = async (req, res) => {
  */
 export const updateUserStatus = async (req, res) => {
   try {
-    const { role, isVerified, subscriptionTier } = req.body;
+    const { name, email, role, isVerified, subscriptionTier } = req.body;
     const user = await User.findById(req.params.id);
     
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
 
+    if (name) user.name = name;
+    if (email) user.email = email;
     if (role) user.role = role;
     if (typeof isVerified === 'boolean') user.isVerified = isVerified;
     if (subscriptionTier) user.subscriptionTier = subscriptionTier;
@@ -512,6 +515,80 @@ export const deleteCardTemplate = async (req, res) => {
     return res.status(200).json({ success: true, message: 'Template deleted' });
   } catch (error) {
     console.error('Error in deleteCardTemplate:', error);
+    return res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+/**
+ * @desc    Change a user's password as admin
+ * @route   PUT /api/admin/users/:id/password
+ * @access  Private/Admin
+ */
+export const changeUserPassword = async (req, res) => {
+  try {
+    const { newPassword } = req.body;
+    
+    if (!newPassword || newPassword.length < 6) {
+      return res.status(400).json({ success: false, message: 'Password must be at least 6 characters' });
+    }
+
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    user.passwordHash = await bcrypt.hash(newPassword, salt);
+    await user.save();
+
+    return res.status(200).json({ success: true, message: 'Password updated successfully' });
+  } catch (error) {
+    console.error('Error in changeUserPassword:', error);
+    return res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+/**
+ * @desc    Create a new user directly as an admin
+ * @route   POST /api/admin/users
+ * @access  Private/Admin
+ */
+export const createUser = async (req, res) => {
+  try {
+    const { name, email, password, role } = req.body;
+    
+    if (!name || !email || !password) {
+      return res.status(400).json({ success: false, message: 'Please provide all required fields' });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ success: false, message: 'Password must be at least 6 characters' });
+    }
+
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+      return res.status(400).json({ success: false, message: 'User with this email already exists' });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(password, salt);
+
+    const newUser = new User({
+      name,
+      email,
+      passwordHash,
+      role: role || 'member',
+      isVerified: true, // Created by admin, auto-verify
+    });
+
+    await newUser.save();
+
+    const userData = newUser.toObject();
+    delete userData.passwordHash;
+
+    return res.status(201).json({ success: true, data: userData, message: 'User created successfully' });
+  } catch (error) {
+    console.error('Error in createUser:', error);
     return res.status(500).json({ success: false, message: 'Server Error' });
   }
 };
