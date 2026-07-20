@@ -51,9 +51,19 @@ const cardSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    themeId: {
+    displayPresetId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Theme',
+      ref: 'DisplayPreset',
+      default: null,
+    },
+    colorThemeId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'ColorTheme',
+      default: null,
+    },
+    footerPresetId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'FooterPreset',
       default: null,
     },
     sections: {

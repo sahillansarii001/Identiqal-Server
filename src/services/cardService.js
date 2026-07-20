@@ -21,17 +21,20 @@ class CardService {
       throw new Error('User not found');
     }
 
-    // Get user's theme (or create a default one)
-    const theme = await themeService.getUserTheme(userId);
-
+    // Get user's default presets (or null if none)
+    // We will let the frontend explicitly set these when they pick a template.
+    // For now, we initialize them as null.
+    
     const card = await Card.create({
       userId,
       organizationId: user.organizationId || null,
       slug,
       title,
-      themeId: theme._id,
       isPublished: false,
       sections: [],
+      displayPresetId: null,
+      colorThemeId: null,
+      footerPresetId: null,
       seo: {
         metaTitle: title,
         metaDescription: `Digital identity card for ${title}`,
@@ -43,7 +46,11 @@ class CardService {
   }
 
   async getCardsByUser(userId) {
-    return await Card.find({ userId }).sort({ createdAt: -1 });
+    return await Card.find({ userId })
+      .populate('displayPresetId')
+      .populate('colorThemeId')
+      .populate('footerPresetId')
+      .sort({ createdAt: -1 });
   }
 
   async updateCard(cardId, userId, updateData) {
@@ -62,8 +69,14 @@ class CardService {
       card.markModified('sections');
     }
     if (updateData.seo) card.seo = { ...card.seo, ...updateData.seo };
+    if (updateData.displayPresetId !== undefined) card.displayPresetId = updateData.displayPresetId;
+    if (updateData.colorThemeId !== undefined) card.colorThemeId = updateData.colorThemeId;
+    if (updateData.footerPresetId !== undefined) card.footerPresetId = updateData.footerPresetId;
 
     await card.save();
+    await card.populate('displayPresetId');
+    await card.populate('colorThemeId');
+    await card.populate('footerPresetId');
 
     // Invalidate public cache for this card
     this.invalidateCache(card.slug);
@@ -83,6 +96,9 @@ class CardService {
 
     card.isPublished = isPublished;
     await card.save();
+    await card.populate('displayPresetId');
+    await card.populate('colorThemeId');
+    await card.populate('footerPresetId');
 
     // Invalidate public cache
     this.invalidateCache(card.slug);
@@ -115,30 +131,21 @@ class CardService {
       return cached.data;
     }
 
-    const card = await Card.findOne({ slug, isPublished: true });
+    const card = await Card.findOne({ slug, isPublished: true })
+      .populate('displayPresetId')
+      .populate('colorThemeId')
+      .populate('footerPresetId');
+      
     if (!card) {
       throw new Error('Card not found or is currently private');
     }
 
-    // Populate theme details
-    let theme = null;
-    const user = await User.findById(card.userId);
-    
-    if (user && user.organizationId) {
-      const org = await Organization.findById(user.organizationId).populate('lockedThemeId');
-      if (org && org.lockedThemeId) {
-        theme = org.lockedThemeId;
-      }
-    }
-
-    if (!theme) {
-      theme = await Theme.findById(card.themeId);
-    }
-
-    // Merge card and theme data into payload
+    // Prepare response data with populated items
     const resolvedCard = {
       card,
-      theme: theme || {},
+      displayPreset: card.displayPresetId || {},
+      colorTheme: card.colorThemeId || {},
+      footerPreset: card.footerPresetId || {},
     };
 
     // Cache the resolved data
