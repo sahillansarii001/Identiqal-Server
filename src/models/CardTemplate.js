@@ -23,6 +23,10 @@ const cardTemplateSchema = new mongoose.Schema(
       enum: ['NEW', 'PREMIUM', 'POPULAR', 'TRENDING', 'AI PICK', ''],
       default: '',
     },
+    isPremium: {
+      type: Boolean,
+      default: false,
+    },
     status: {
       type: String,
       enum: ['published', 'draft'],

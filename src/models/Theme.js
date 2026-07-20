@@ -47,6 +47,18 @@ const themeSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    isPremium: {
+      type: Boolean,
+      default: false,
+    },
+    backgroundImage: {
+      type: String,
+      default: '',
+    },
+    backgroundVideo: {
+      type: String,
+      default: '',
+    },
   },
   {
     timestamps: true,
