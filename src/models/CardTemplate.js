@@ -32,35 +32,64 @@ const cardTemplateSchema = new mongoose.Schema(
       enum: ['published', 'draft'],
       default: 'draft',
     },
-    // Visual / theme defaults pre-filled by this template
-    colors: {
-      primary:    { type: String, default: '#5A3045' },
-      secondary:  { type: String, default: '#D4A45B' },
-      background: { type: String, default: '#FFFFFF' },
-      text:       { type: String, default: '#1E1520' },
-      accent:     { type: String, default: '#D4A45B' },
+
+    // ─── Reusable module references ────────────────────────────────────
+    displayPresetId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'DisplayPreset',
+      default: null,
     },
-    font: {
-      family:  { type: String, default: 'Inter' },
-      heading: { type: String, default: 'Inter' },
-      body:    { type: String, default: 'Inter' },
+    colorThemeId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'ColorTheme',
+      default: null,
     },
-    layoutStyle: {
+    footerPresetId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'FooterPreset',
+      default: null,
+    },
+
+    // ─── Template-level overrides (not stored in any reusable module) ──
+    typography: {
+      fontFamily: { type: String, default: 'Inter' },
+      headingFont: { type: String, default: 'Inter' },
+      bodyFont: { type: String, default: 'Inter' },
+      headingWeight: { type: String, default: '700' },
+      bodyWeight: { type: String, default: '400' },
+      letterSpacing: { type: String, default: 'normal' },
+    },
+    profileSettings: {
+      position: {
+        type: String,
+        enum: ['Top', 'Overlap', 'Floating', 'Hidden', 'Center', 'Left', 'Right'],
+        default: 'Center',
+      },
+      shape: {
+        type: String,
+        enum: ['Circle', 'Rounded', 'Square'],
+        default: 'Circle',
+      },
+    },
+    spacing: {
+      cardRadius: { type: String, default: '24px' },
+      sectionPadding: { type: String, default: 'Normal' },
+      cardShadow: { type: String, default: 'Medium' },
+      dividers: { type: String, default: 'Subtle' },
+    },
+    animationStyle: {
       type: String,
-      enum: ['minimal', 'bold', 'corporate', 'creative'],
-      default: 'minimal',
+      enum: ['None', 'Fade', 'Slide', 'Scale', 'Glow', 'Bounce'],
+      default: 'Fade',
     },
-    buttonStyle: {
-      type: String,
-      enum: ['rounded', 'square', 'outline'],
-      default: 'rounded',
-    },
-    // Default card sections to apply when a user picks this template
+
+    // ─── Default card sections to apply when a user picks this template ─
     sections: {
       type: mongoose.Schema.Types.Mixed,
       default: [],
     },
-    // Usage tracking
+
+    // ─── Usage tracking ─────────────────────────────────────────────────
     usageCount: {
       type: Number,
       default: 0,
@@ -78,3 +107,4 @@ const cardTemplateSchema = new mongoose.Schema(
 
 const CardTemplate = mongoose.model('CardTemplate', cardTemplateSchema);
 export default CardTemplate;
+

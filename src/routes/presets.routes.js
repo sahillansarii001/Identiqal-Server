@@ -12,6 +12,7 @@ router.get('/display/:id', presetController.getDisplayPresetById);
 router.post('/display', protect, authorize('admin'), presetController.createDisplayPreset);
 router.put('/display/:id', protect, authorize('admin'), presetController.updateDisplayPreset);
 router.delete('/display/:id', protect, authorize('admin'), presetController.deleteDisplayPreset);
+router.post('/display/:id/duplicate', protect, authorize('admin'), presetController.duplicateDisplayPreset);
 
 // --- Color Themes ---
 router.get('/colors', presetController.getColorThemes);
@@ -21,6 +22,7 @@ router.get('/colors/:id', presetController.getColorThemeById);
 router.post('/colors', protect, authorize('admin'), presetController.createColorTheme);
 router.put('/colors/:id', protect, authorize('admin'), presetController.updateColorTheme);
 router.delete('/colors/:id', protect, authorize('admin'), presetController.deleteColorTheme);
+router.post('/colors/:id/duplicate', protect, authorize('admin'), presetController.duplicateColorTheme);
 
 // --- Footer Presets ---
 router.get('/footers', presetController.getFooterPresets);
@@ -30,5 +32,7 @@ router.get('/footers/:id', presetController.getFooterPresetById);
 router.post('/footers', protect, authorize('admin'), presetController.createFooterPreset);
 router.put('/footers/:id', protect, authorize('admin'), presetController.updateFooterPreset);
 router.delete('/footers/:id', protect, authorize('admin'), presetController.deleteFooterPreset);
+router.post('/footers/:id/duplicate', protect, authorize('admin'), presetController.duplicateFooterPreset);
 
 export default router;
+

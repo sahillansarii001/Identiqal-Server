@@ -436,7 +436,14 @@ export const createAnnouncement = async (req, res) => {
  */
 export const getCardTemplates = async (req, res) => {
   try {
-    const templates = await CardTemplate.find({}).sort({ createdAt: -1 }).lean();
+    const { status } = req.query;
+    const filter = status ? { status } : {};
+    const templates = await CardTemplate.find(filter)
+      .populate('displayPresetId', 'name headerStyle headerHeight headerColor headerColorEnd gradient')
+      .populate('colorThemeId', 'name primary secondary accent background text')
+      .populate('footerPresetId', 'name style background ctaEnabled')
+      .sort({ createdAt: -1 })
+      .lean();
     return res.status(200).json({ success: true, data: templates });
   } catch (error) {
     console.error('Error in getCardTemplates:', error);
@@ -451,7 +458,11 @@ export const getCardTemplates = async (req, res) => {
  */
 export const createCardTemplate = async (req, res) => {
   try {
-    const { name, category, description, badge, isPremium, status, colors, font, layoutStyle, buttonStyle, sections } = req.body;
+    const {
+      name, category, description, badge, isPremium, status,
+      displayPresetId, colorThemeId, footerPresetId,
+      typography, profileSettings, spacing, animationStyle, sections,
+    } = req.body;
     const template = new CardTemplate({
       name: name || 'Untitled Template',
       category: category || 'General',
@@ -459,10 +470,13 @@ export const createCardTemplate = async (req, res) => {
       badge: badge || '',
       isPremium: isPremium || false,
       status: status || 'draft',
-      colors: colors || undefined,
-      font: font || undefined,
-      layoutStyle: layoutStyle || 'minimal',
-      buttonStyle: buttonStyle || 'rounded',
+      displayPresetId: displayPresetId || null,
+      colorThemeId: colorThemeId || null,
+      footerPresetId: footerPresetId || null,
+      typography: typography || undefined,
+      profileSettings: profileSettings || undefined,
+      spacing: spacing || undefined,
+      animationStyle: animationStyle || 'Fade',
       sections: sections || [],
       createdBy: req.user.id,
     });
@@ -485,18 +499,14 @@ export const updateCardTemplate = async (req, res) => {
     if (!template) {
       return res.status(404).json({ success: false, message: 'Template not found' });
     }
-    const { name, category, description, badge, isPremium, status, colors, font, layoutStyle, buttonStyle, sections } = req.body;
-    if (name !== undefined) template.name = name;
-    if (category !== undefined) template.category = category;
-    if (description !== undefined) template.description = description;
-    if (badge !== undefined) template.badge = badge;
-    if (isPremium !== undefined) template.isPremium = isPremium;
-    if (status !== undefined) template.status = status;
-    if (colors !== undefined) template.colors = { ...template.colors.toObject?.() ?? template.colors, ...colors };
-    if (font !== undefined) template.font = { ...template.font.toObject?.() ?? template.font, ...font };
-    if (layoutStyle !== undefined) template.layoutStyle = layoutStyle;
-    if (buttonStyle !== undefined) template.buttonStyle = buttonStyle;
-    if (sections !== undefined) template.sections = sections;
+    const allowed = [
+      'name', 'category', 'description', 'badge', 'isPremium', 'status',
+      'displayPresetId', 'colorThemeId', 'footerPresetId',
+      'typography', 'profileSettings', 'spacing', 'animationStyle', 'sections',
+    ];
+    allowed.forEach((key) => {
+      if (req.body[key] !== undefined) template[key] = req.body[key];
+    });
     await template.save();
     return res.status(200).json({ success: true, data: template });
   } catch (error) {
@@ -519,6 +529,20 @@ export const deleteCardTemplate = async (req, res) => {
     return res.status(200).json({ success: true, message: 'Template deleted' });
   } catch (error) {
     console.error('Error in deleteCardTemplate:', error);
+    return res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+export const duplicateCardTemplate = async (req, res) => {
+  try {
+    const original = await CardTemplate.findById(req.params.id).lean();
+    if (!original) return res.status(404).json({ success: false, message: 'Template not found' });
+    const { _id, createdAt, updatedAt, __v, usageCount, ...rest } = original;
+    const copy = new CardTemplate({ ...rest, name: `${rest.name} (Copy)`, status: 'draft', createdBy: req.user.id });
+    await copy.save();
+    return res.status(201).json({ success: true, data: copy });
+  } catch (error) {
+    console.error('Error in duplicateCardTemplate:', error);
     return res.status(500).json({ success: false, message: 'Server Error' });
   }
 };

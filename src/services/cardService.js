@@ -60,7 +60,7 @@ class CardService {
     }
 
     if (card.userId.toString() !== userId.toString()) {
-      throw new Error('Unauthorized to modify this card');
+      throw new Error(`Unauthorized to modify this card (card.userId: ${card.userId.toString()}, req.user.id: ${userId.toString()})`);
     }
 
     if (updateData.title) card.title = updateData.title;
@@ -72,6 +72,24 @@ class CardService {
     if (updateData.displayPresetId !== undefined) card.displayPresetId = updateData.displayPresetId;
     if (updateData.colorThemeId !== undefined) card.colorThemeId = updateData.colorThemeId;
     if (updateData.footerPresetId !== undefined) card.footerPresetId = updateData.footerPresetId;
+    if (updateData.imageUrl !== undefined) card.imageUrl = updateData.imageUrl;
+    if (updateData.imageScale !== undefined) card.imageScale = updateData.imageScale;
+    if (updateData.imagePositionX !== undefined) card.imagePositionX = updateData.imagePositionX;
+    if (updateData.imagePositionY !== undefined) card.imagePositionY = updateData.imagePositionY;
+    if (updateData.imageOpacity !== undefined) card.imageOpacity = updateData.imageOpacity;
+    if (updateData.overlayType !== undefined) card.overlayType = updateData.overlayType;
+    if (updateData.imageRotation !== undefined) card.imageRotation = updateData.imageRotation;
+    if (updateData.imagePlacement !== undefined) card.imagePlacement = updateData.imagePlacement;
+    if (updateData.containerStyle !== undefined) card.containerStyle = updateData.containerStyle;
+    if (updateData.containerSize !== undefined) card.containerSize = updateData.containerSize;
+    if (updateData.containerBorder !== undefined) card.containerBorder = updateData.containerBorder;
+    if (updateData.containerShadow !== undefined) card.containerShadow = updateData.containerShadow;
+    if (updateData.containerPadding !== undefined) card.containerPadding = updateData.containerPadding;
+    if (updateData.imageFit !== undefined) card.imageFit = updateData.imageFit;
+    if (updateData.imageBlur !== undefined) card.imageBlur = updateData.imageBlur;
+    if (updateData.imageBrightness !== undefined) card.imageBrightness = updateData.imageBrightness;
+    if (updateData.imageContrast !== undefined) card.imageContrast = updateData.imageContrast;
+    if (updateData.imageSaturation !== undefined) card.imageSaturation = updateData.imageSaturation;
 
     await card.save();
     await card.populate('displayPresetId');

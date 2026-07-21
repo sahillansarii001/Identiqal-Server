@@ -26,7 +26,7 @@ const displayPresetSchema = new mongoose.Schema(
     },
     headerStyle: {
       type: String,
-      enum: ['Solid Color', 'Gradient', 'Curved Wave', 'Diagonal Split', 'Rounded', 'Organic Blob', 'Glass', 'Full Image', 'Full Video'],
+      enum: ['Solid Color', 'Gradient', 'Curved Wave', 'Diagonal Split', 'Rounded', 'Organic Blob', 'Glass', 'Full Image', 'Full Video', 'Aurora'],
       default: 'Solid Color',
     },
     headerHeight: {
@@ -82,6 +82,79 @@ const displayPresetSchema = new mongoose.Schema(
       type: String,
       enum: ['Top Right', 'Inline', 'Hidden'],
       default: 'Top Right',
+    },
+    // Visual presets step-builder settings
+    borderRadius: {
+      type: String,
+      default: '24px',
+    },
+    shadow: {
+      type: String,
+      default: 'none',
+    },
+    gradient: {
+      type: Boolean,
+      default: false,
+    },
+    overlay: {
+      type: Number,
+      default: 0,
+    },
+    footerEnabled: {
+      type: Boolean,
+      default: false,
+    },
+    footerStyle: {
+      type: String,
+      default: 'Simple',
+    },
+    footerHeight: {
+      type: String,
+      default: '40px',
+    },
+    footerColor: {
+      type: String,
+      default: '',
+    },
+    headerColor: {
+      type: String,
+      default: '',
+    },
+    headerColorEnd: {
+      type: String,
+      default: '',
+    },
+    gradientDirection: {
+      type: String,
+      default: 'Vertical',
+    },
+    headerPattern: {
+      type: String,
+      default: 'None',
+    },
+    headerThemeMode: {
+      type: String,
+      default: 'Solid',
+    },
+    allowDrag: {
+      type: Boolean,
+      default: true,
+    },
+    allowZoom: {
+      type: Boolean,
+      default: true,
+    },
+    defaultZoom: {
+      type: Number,
+      default: 100,
+    },
+    defaultPositionX: {
+      type: Number,
+      default: 0,
+    },
+    defaultPositionY: {
+      type: Number,
+      default: 0,
     },
     // Optional default styling values if we want presets to have embedded colors/fonts
     defaultColors: {

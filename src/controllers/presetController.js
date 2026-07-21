@@ -166,3 +166,45 @@ export const deleteFooterPreset = async (req, res) => {
     res.status(500).json({ message: 'Failed to delete footer preset', error: error.message });
   }
 };
+
+// --- Duplicate Handlers ---
+
+export const duplicateDisplayPreset = async (req, res) => {
+  try {
+    const original = await DisplayPreset.findById(req.params.id).lean();
+    if (!original) return res.status(404).json({ message: 'Preset not found' });
+    const { _id, createdAt, updatedAt, __v, ...rest } = original;
+    const copy = new DisplayPreset({ ...rest, name: `${rest.name} (Copy)`, status: 'draft', createdBy: req.user._id });
+    const saved = await copy.save();
+    res.status(201).json(saved);
+  } catch (error) {
+    res.status(400).json({ message: 'Failed to duplicate preset', error: error.message });
+  }
+};
+
+export const duplicateColorTheme = async (req, res) => {
+  try {
+    const original = await ColorTheme.findById(req.params.id).lean();
+    if (!original) return res.status(404).json({ message: 'Theme not found' });
+    const { _id, createdAt, updatedAt, __v, ...rest } = original;
+    const copy = new ColorTheme({ ...rest, name: `${rest.name} (Copy)`, status: 'draft', createdBy: req.user._id });
+    const saved = await copy.save();
+    res.status(201).json(saved);
+  } catch (error) {
+    res.status(400).json({ message: 'Failed to duplicate theme', error: error.message });
+  }
+};
+
+export const duplicateFooterPreset = async (req, res) => {
+  try {
+    const original = await FooterPreset.findById(req.params.id).lean();
+    if (!original) return res.status(404).json({ message: 'Footer preset not found' });
+    const { _id, createdAt, updatedAt, __v, ...rest } = original;
+    const copy = new FooterPreset({ ...rest, name: `${rest.name} (Copy)`, status: 'draft', createdBy: req.user._id });
+    const saved = await copy.save();
+    res.status(201).json(saved);
+  } catch (error) {
+    res.status(400).json({ message: 'Failed to duplicate footer preset', error: error.message });
+  }
+};
+

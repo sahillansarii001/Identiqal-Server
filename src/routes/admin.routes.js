@@ -20,6 +20,7 @@ import {
   createCardTemplate,
   updateCardTemplate,
   deleteCardTemplate,
+  duplicateCardTemplate,
   changeUserPassword,
   createUser,
   seedDemoTemplates,
@@ -58,6 +59,7 @@ router.get('/card-templates', getCardTemplates);
 router.post('/card-templates', createCardTemplate);
 router.put('/card-templates/:id', updateCardTemplate);
 router.delete('/card-templates/:id', deleteCardTemplate);
+router.post('/card-templates/:id/duplicate', duplicateCardTemplate);
 router.post('/templates/seed', seedDemoTemplates);
 
 router.post('/themes/seed', seedDemoThemes);

@@ -75,6 +75,78 @@ const cardSchema = new mongoose.Schema(
       metaDescription: { type: String, default: '' },
       ogImageUrl: { type: String, default: '' },
     },
+    imageUrl: {
+      type: String,
+      default: '',
+    },
+    imageScale: {
+      type: Number,
+      default: 100,
+    },
+    imagePositionX: {
+      type: Number,
+      default: 0,
+    },
+    imagePositionY: {
+      type: Number,
+      default: 0,
+    },
+    imageOpacity: {
+      type: Number,
+      default: 80,
+    },
+    overlayType: {
+      type: String,
+      default: 'None',
+    },
+    imageRotation: {
+      type: Number,
+      default: 0,
+    },
+    imagePlacement: {
+      type: String,
+      default: 'Inside Header',
+    },
+    containerStyle: {
+      type: String,
+      default: 'None',
+    },
+    containerSize: {
+      type: Number,
+      default: 100,
+    },
+    containerBorder: {
+      type: Boolean,
+      default: false,
+    },
+    containerShadow: {
+      type: Boolean,
+      default: false,
+    },
+    containerPadding: {
+      type: Number,
+      default: 0,
+    },
+    imageFit: {
+      type: String,
+      default: 'Cover',
+    },
+    imageBlur: {
+      type: Number,
+      default: 0,
+    },
+    imageBrightness: {
+      type: Number,
+      default: 100,
+    },
+    imageContrast: {
+      type: Number,
+      default: 100,
+    },
+    imageSaturation: {
+      type: Number,
+      default: 100,
+    },
   },
   {
     timestamps: true,
