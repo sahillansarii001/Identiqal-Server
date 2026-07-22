@@ -79,6 +79,10 @@ const cardSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    isVideo: {
+      type: Boolean,
+      default: false,
+    },
     imageScale: {
       type: Number,
       default: 100,

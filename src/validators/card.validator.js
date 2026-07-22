@@ -32,6 +32,7 @@ export const updateCardSchema = yup.object({
   colorThemeId: yup.string().trim().nullable(),
   footerPresetId: yup.string().trim().nullable(),
   imageUrl: yup.string().trim().nullable(), // Allow empty string or path or url
+  isVideo: yup.boolean().default(false),
   imageScale: yup.number().integer().default(100),
   imagePositionX: yup.number().default(0),
   imagePositionY: yup.number().default(0),
