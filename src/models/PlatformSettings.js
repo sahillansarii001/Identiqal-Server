@@ -22,6 +22,22 @@ const platformSettingsSchema = new mongoose.Schema(
       type: String,
       default: 'support@identiqal.com',
     },
+    qrFeatureEnabled: {
+      type: Boolean,
+      default: true,
+    },
+    defaultQrTitle: {
+      type: String,
+      default: 'Scan Me',
+    },
+    defaultQrDescription: {
+      type: String,
+      default: 'Scan to connect instantly',
+    },
+    defaultQrSize: {
+      type: Number,
+      default: 200,
+    },
   },
   {
     timestamps: true,

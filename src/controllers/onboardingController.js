@@ -15,15 +15,6 @@ export const updateOnboarding = async (req, res) => {
     }
 
     let card = await Card.findOne({ userId });
-    if (!card) {
-      // Create a default card using username as slug
-      card = await Card.create({
-        userId,
-        slug: user.username || user.email.split('@')[0],
-        title: user.name || 'My Digital Card',
-        isPublished: true,
-      });
-    }
 
     switch (step) {
       case 'subscription':
@@ -35,7 +26,7 @@ export const updateOnboarding = async (req, res) => {
         await user.save();
         break;
       case 'theme':
-        if (data.themeId) {
+        if (data.themeId && card) {
           if (mongoose.Types.ObjectId.isValid(data.themeId)) {
             card.themeId = data.themeId;
           } else {
@@ -45,50 +36,56 @@ export const updateOnboarding = async (req, res) => {
         }
         break;
       case 'platforms':
-        // Prepare empty links for platforms
-        const linksData = data.platforms.map((platform) => ({
-          platform,
-          url: '',
-        }));
-        // Update or create links section
-        let linksSection = card.sections.find(s => s.type === 'links');
-        if (!linksSection) {
-          card.sections.push({
-            sectionId: 'links_section',
-            type: 'links',
-            order: 0,
-            data: { links: linksData }
-          });
-        } else {
-          linksSection.data = { links: linksData };
+        if (card) {
+          // Prepare empty links for platforms
+          const linksData = data.platforms.map((platform) => ({
+            platform,
+            url: '',
+          }));
+          // Update or create links section
+          let linksSection = card.sections.find(s => s.type === 'links');
+          if (!linksSection) {
+            card.sections.push({
+              sectionId: 'links_section',
+              type: 'links',
+              order: 0,
+              data: { links: linksData }
+            });
+          } else {
+            linksSection.data = { links: linksData };
+          }
+          await card.save();
         }
-        await card.save();
         break;
       case 'links':
-        // data.links is array of { platform, url }
-        let currentLinksSection = card.sections.find(s => s.type === 'links');
-        if (currentLinksSection) {
-          currentLinksSection.data = { links: data.links };
-          await card.save();
+        if (card) {
+          // data.links is array of { platform, url }
+          let currentLinksSection = card.sections.find(s => s.type === 'links');
+          if (currentLinksSection) {
+            currentLinksSection.data = { links: data.links };
+            await card.save();
+          }
         }
         break;
       case 'profile':
         if (data.name) user.name = data.name;
         await user.save();
         
-        card.title = data.name || card.title;
-        let headerSection = card.sections.find(s => s.type === 'header');
-        if (!headerSection) {
-          card.sections.push({
-            sectionId: 'header_section',
-            type: 'header',
-            order: -1,
-            data: { bio: data.bio || '' }
-          });
-        } else {
-          headerSection.data = { ...headerSection.data, bio: data.bio || '' };
+        if (card) {
+          card.title = data.name || card.title;
+          let headerSection = card.sections.find(s => s.type === 'header');
+          if (!headerSection) {
+            card.sections.push({
+              sectionId: 'header_section',
+              type: 'header',
+              order: -1,
+              data: { bio: data.bio || '' }
+            });
+          } else {
+            headerSection.data = { ...headerSection.data, bio: data.bio || '' };
+          }
+          await card.save();
         }
-        await card.save();
         break;
       default:
         return res.status(400).json({ success: false, message: 'Invalid onboarding step' });

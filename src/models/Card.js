@@ -151,6 +151,37 @@ const cardSchema = new mongoose.Schema(
       type: Number,
       default: 100,
     },
+    showQRCode: {
+      type: Boolean,
+      default: false,
+    },
+    qrType: {
+      type: String,
+      default: 'generated', // 'generated' | 'uploaded'
+    },
+    qrImage: {
+      type: String,
+      default: '',
+    },
+    qrTitle: {
+      type: String,
+      default: '',
+    },
+    qrDescription: {
+      type: String,
+      default: '',
+    },
+    qrSettings: {
+      type: mongoose.Schema.Types.Mixed,
+      default: { 
+        bgColor: '#ffffff', 
+        borderRadius: 16, 
+        shadow: true, 
+        border: true, 
+        padding: 16, 
+        width: 200 
+      },
+    },
   },
   {
     timestamps: true,
